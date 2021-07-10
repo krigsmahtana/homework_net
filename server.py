@@ -6,7 +6,7 @@ from http import HTTPStatus
 logging.basicConfig(level=logging.DEBUG)
 
 HOST = "127.0.0.1"
-PORT = 8889
+PORT = 8080
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     print(f"Binding server on {HOST}:{PORT}")
@@ -29,14 +29,15 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
             # Get message and revert it and send it back
             data = str(data.decode("utf-8"))
-            one_list = re.split(' ', data)
-            code = re.split('=', one_list[1])
+            code = re.split('=', data)
             sorce_ip = str(addr)
             try:
                 resp_status = HTTPStatus(int(code[1])).phrase
-                print("Request Method: " + one_list[0] + " Request Source:" + sorce_ip +
-                      " Response Status: " + code[1] + HTTPStatus(int(code[1])).phrase +
-                      " User-Agent:" + one_list[14], one_list[14], one_list[14], one_list[14])
-            except ValueError:
-                print("Request Method: " + one_list[0] + " Request Source:" + sorce_ip +
-                      " Response Status: 200 OK User-Agent:" + one_list[14], one_list[14], one_list[14], one_list[14])
+                data = ("Request Method: GET" + " Request Source:" + sorce_ip +
+                        " Response Status: " + code[1] + HTTPStatus(int(code[1])).phrase +
+                        " Content-Type: text/html; charset=UTF-8")
+                conn.sendall(data.encode("utf-8"))
+            except IndexError:
+                data = ("Request Method: GET" + " Request Source:" + sorce_ip +
+                      " Response Status: 200 OK Content-Type: text/html; charset=UTF-8")
+                conn.send(data.encode("utf-8"))
