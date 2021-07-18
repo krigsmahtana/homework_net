@@ -9,35 +9,27 @@ HOST = "127.0.0.1"
 PORT = 8080
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    print(f"Binding server on {HOST}:{PORT}")
     s.bind((HOST, PORT))
     s.listen()
-
     conn, addr = s.accept()
     with conn:
-
-        conn.send("Hello, I am server!".encode("utf-8"))
-
-        while True:
-
-            data = conn.recv(1024)
-            # print("Received Inna", data, "from", addr)
-
-            if not data or data == b"close":
-                print("Got termination signal", data, "and closed connection")
-                conn.close()
-
-            # Get message and revert it and send it back
-            data = str(data.decode("utf-8"))
-            code = re.split('=', data)
-            sorce_ip = str(addr)
-            try:
-                resp_status = HTTPStatus(int(code[1])).phrase
-                data = ("Request Method: GET" + " Request Source:" + sorce_ip +
-                        " Response Status: " + code[1] + HTTPStatus(int(code[1])).phrase +
-                        " Content-Type: text/html; charset=UTF-8")
-                conn.sendall(data.encode("utf-8"))
-            except IndexError:
-                data = ("Request Method: GET" + " Request Source:" + sorce_ip +
-                      " Response Status: 200 OK Content-Type: text/html; charset=UTF-8")
-                conn.send(data.encode("utf-8"))
+        print('Connected by', addr)
+        data = conn.recv(1024)
+        data = str(data.decode("utf-8"))
+        print(data)
+        code = re.split('\n', data)
+        code_two = re.split(' ', code[0])
+        code_tree = re.split('=', code_two[1])
+        print(code_tree[1])
+        sorce_ip = str(addr)
+        print(sorce_ip)
+        try:
+            resp_status = HTTPStatus(int(code_tree[1])).phrase
+            data = (" Request Method: GET\n" + " Request Source:" + sorce_ip + "\n" +
+                    " Response Status: " + code_tree[1] + HTTPStatus(int(code_tree[1])).phrase + "\n" +
+                    " Content-Type: text/html; charset=UTF-8")
+            conn.sendall(data.encode("utf-8"))
+        except:
+            data = (" Request Method: GET\n" + " Request Source:" + sorce_ip + "\n" +
+                    " Response Status: 200 OK Content-Type: text/html; charset=UTF-8")
+            conn.send(data.encode())
